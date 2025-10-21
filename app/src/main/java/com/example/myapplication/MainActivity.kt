@@ -9,23 +9,21 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.myapplication.ui.theme.MyApplicationTheme
-import com.example.myapplication.view.SelectAtributesScreen
-import com.example.myapplication.view.SelectRaceScreen
-import com.example.myapplication.view.SelectClassScreen
-import com.example.myapplication.view.SetAttributesScreen
-import com.example.myapplication.view.CharacterSummaryScreen
-import com.example.myapplication.model.races.*
+import androidx.compose.ui.platform.LocalContext
 import com.example.myapplication.controller.CreateCharacterHandle
+import com.example.myapplication.data.AppDatabase
+import com.example.myapplication.data.CharacterEntity
 import com.example.myapplication.model.StartOption
+import com.example.myapplication.ui.theme.MyApplicationTheme
 import com.example.myapplication.view.*
+import kotlinx.coroutines.launch
 
 val SELECT_START_SCREEN : String = "SelectStartScreen";
 val SET_ATRIBUTES_SCREEN : String = "SetAtributesScreen";
 val SELECT_CLASS_SCREEN : String = "SelectClassScreen";
 val SELECT_RACE_SREEN : String = "SelectRaceScreen";
 val CHARACTER_SUMMARY_SCREEN : String = "CharacterSummaryScreen";
+val SAVED_CHARACTERS_SCREEN : String = "SavedCharactersScreen";
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,6 +47,9 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun CharacterCreationFlow(modifier: Modifier = Modifier, createCharacterHandle: CreateCharacterHandle) {
     var currentScreen by remember { mutableStateOf(SELECT_START_SCREEN) }
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val characterDao = AppDatabase.getDatabase(context).characterDao()
 
     when (currentScreen) {
         SELECT_START_SCREEN -> {
@@ -64,6 +65,9 @@ fun CharacterCreationFlow(modifier: Modifier = Modifier, createCharacterHandle: 
                 onAdventurerSelected = {
                     createCharacterHandle.setOptionStart(StartOption.ADVENTURER)
                     currentScreen = SET_ATRIBUTES_SCREEN
+                },
+                onSavedCharactersSelected = {
+                     currentScreen = SAVED_CHARACTERS_SCREEN
                 },
                 modifier = modifier
             )
@@ -114,6 +118,27 @@ fun CharacterCreationFlow(modifier: Modifier = Modifier, createCharacterHandle: 
                     currentScreen = SELECT_RACE_SREEN
                 },
                 onFinish = {
+                    scope.launch {
+                        val characterToSave = CharacterEntity(
+                            race = createCharacterHandle.getRace()?.getName() ?: "",
+                            characterClass = createCharacterHandle.getClass()?.getName() ?: "",
+                            strength = createCharacterHandle.getStrength(),
+                            dexterity = createCharacterHandle.getDexterity(),
+                            constitution = createCharacterHandle.getConstitution(),
+                            intelligence = createCharacterHandle.getIntelligence(),
+                            wisdom = createCharacterHandle.getWisdom(),
+                            charisma = createCharacterHandle.getCharisma()
+                        )
+                        characterDao.insert(characterToSave)
+                    }
+                    currentScreen = SELECT_START_SCREEN
+                },
+                modifier = modifier
+            )
+        }
+        SAVED_CHARACTERS_SCREEN -> {
+            SavedCharactersScreen(
+                onBackPressed = {
                     currentScreen = SELECT_START_SCREEN
                 },
                 modifier = modifier

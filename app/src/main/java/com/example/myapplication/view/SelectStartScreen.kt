@@ -22,6 +22,7 @@ fun SelectAtributesScreen(
     onClassicSelected: () -> Unit = {},
     onHeroicSelected: () -> Unit = {},
     onAdventurerSelected: () -> Unit = {},
+    onSavedCharactersSelected: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -37,7 +38,7 @@ fun SelectAtributesScreen(
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 32.dp)
         )
-        
+
         Button(
             onClick = onClassicSelected,
             modifier = Modifier
@@ -50,7 +51,7 @@ fun SelectAtributesScreen(
                 modifier = Modifier.padding(vertical = 8.dp)
             )
         }
-        
+
         Button(
             onClick = onHeroicSelected,
             modifier = Modifier
@@ -63,7 +64,7 @@ fun SelectAtributesScreen(
                 modifier = Modifier.padding(vertical = 8.dp)
             )
         }
-        
+
         Button(
             onClick = onAdventurerSelected,
             modifier = Modifier
@@ -72,6 +73,19 @@ fun SelectAtributesScreen(
         ) {
             Text(
                 text = "Adventurer",
+                fontSize = 18.sp,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+        }
+
+        Button(
+            onClick = onSavedCharactersSelected,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        ) {
+            Text(
+                text = "View Saved Characters",
                 fontSize = 18.sp,
                 modifier = Modifier.padding(vertical = 8.dp)
             )
